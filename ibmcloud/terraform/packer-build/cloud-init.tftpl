@@ -1,0 +1,10 @@
+#cloud-config
+version: v1
+packages_update: true
+packages_upgrade: true
+packages:
+  - ansible
+  - git
+runcmd:
+  - [git, clone, "-b ibmcloud_packer", "https://github.com/jtumber-ibm/cloud-api-adaptor.git" "/root/cloud-api-adaptor"]
+  - [ansible-playbook, /root/cloud-api-adaptor/ibmcloud/packer-build/build-image.yml]

@@ -1,0 +1,8 @@
+---
+- hosts: 127.0.0.1
+  connection: local
+  tasks:
+  - name: Creating an empty file
+    file:
+      path: "/root/example"
+      state: touch
