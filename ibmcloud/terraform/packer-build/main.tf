@@ -1,7 +1,7 @@
 
 locals {
   image_map = {
-    amd64 = "ibm-ubuntu-20-04-minimal-amd64-2"
+    amd64 = "ibm-ubuntu-18-04-6-minimal-amd64-3"
     s390x = "ibm-ubuntu-18-04-1-minimal-s390x-3"
   }
   profile_map = {
@@ -49,6 +49,12 @@ resource "ibm_is_security_group_rule" "ssh" {
   }
 }
 
+resource "ibm_is_security_group_rule" "outbound" {
+  group      = ibm_is_security_group.primary.id
+  direction  = "outbound"
+  remote     = "0.0.0.0/0"
+}
+
 resource "ibm_is_subnet" "primary" {
   name                     = "${var.vpc_name}-subnet"
   vpc                      = ibm_is_vpc.vpc.id
@@ -59,6 +65,10 @@ resource "ibm_is_subnet" "primary" {
 
 data "ibm_is_image" "image" {
   name = local.image_map[var.arch]
+}
+
+data "ibm_resource_group" "default" {
+  is_default = "true"
 }
 
 resource "ibm_is_instance" "packer" {
@@ -75,7 +85,16 @@ resource "ibm_is_instance" "packer" {
   zone = var.zone
   keys = [data.ibm_is_ssh_key.ssh_key.id]
 
-  user_data = templatefile("./cloud-init.tftpl", {})
+  user_data = templatefile("./cloud-init.tftpl", { 
+    cloud_api_adaptor_branch = var.cloud_api_adaptor_branch, 
+    cloud_api_adaptor_url = var.cloud_api_adaptor_url,
+    kata_containers_repo = var.kata_containers_repo,
+    kata_containers_branch = var.kata_containers_branch,
+    region = var.region,
+    subnet_id = ibm_is_subnet.primary.id,
+    resource_group_id = data.ibm_resource_group.default.id,
+    ibmcloud_api_key = var.ibmcloud_api_key
+  })
 }
 
 resource "ibm_is_floating_ip" "packer" {
