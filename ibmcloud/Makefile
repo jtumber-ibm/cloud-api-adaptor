@@ -4,7 +4,7 @@ include ../image/Makefile
 
 build: $(IMAGE_FILE)
 
-$(IMAGE_FILE): $(AGENT_PROTOCOL_FORWARDER) $(KATA_AGENT) $(FILES)
+$(IMAGE_FILE): $(BINARIES) $(FILES)
 	mkdir -p toupload
 	packer build -var ibm_api_key=${IBM_API_KEY} \
 		-var region=${REGION} \
