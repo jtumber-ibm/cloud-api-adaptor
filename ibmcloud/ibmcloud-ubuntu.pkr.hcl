@@ -7,16 +7,10 @@ packer {
   }
 }
 
-local {
-  base_image_map = {
-    amd64 = "ibm-ubuntu-20-04-3-minimal-amd64-1"
-    s390x  = "ibm-ubuntu-18-04-1-minimal-s390x-3"
-  }
-  instance_profile_map = {
-    amd64 = "bx2-2x8"
-    s390x  = "bz2-2x8"
-  }
-}
+// amd64 = "ibm-ubuntu-20-04-3-minimal-amd64-1"
+// s390x  = "ibm-ubuntu-18-04-1-minimal-s390x-3"
+// amd64 = "bx2-2x8"
+// s390x  = "bz2-2x8"
 
 source "ibmcloud-vpc" "ubuntu" {
   api_key = "${var.ibm_api_key}"
@@ -25,8 +19,8 @@ source "ibmcloud-vpc" "ubuntu" {
   subnet_id         = "${var.subnet_id}"
   resource_group_id = "${var.resource_group_id}"
 
-  vsi_base_image_name = "${local.base_image_map[${var.arch}]}"
-  vsi_profile         = "${local.instance_profile_map[${var.arch}]}"
+  vsi_base_image_name = "${var.base_image}"
+  vsi_profile         = "${var.instance_profile}"
   vsi_interface       = "public"
   image_name          = "${var.image_name}"
 
