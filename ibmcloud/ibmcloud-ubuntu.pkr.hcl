@@ -39,7 +39,7 @@ build {
   ]
 
   provisioner "shell-local" {
-    command = "tar cf toupload/files.tar files"
+    command = "tar cf toupload/files.tar -C ../image files"
   }
 
   provisioner "file" {
