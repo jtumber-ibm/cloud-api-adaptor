@@ -4,7 +4,7 @@
 #
 
 locals {
-    podvm_image_name_with_arch = length(regexall("s390x", var.image_name)) == 1 ? "${var.podvm_image_name}-s390x" : "${var.podvm_image_name}-amd64"
+    # podvm_image_name_with_arch = length(regexall("s390x", var.image_name)) == 1 ? "${var.podvm_image_name}-s390x" : "${var.podvm_image_name}-amd64"
 }
 
 module "common" {
@@ -19,14 +19,14 @@ module "common" {
     zone_name = var.zone_name
 }
 
-module "cos" {
-    source = "./cos"
-    ibmcloud_api_key = var.ibmcloud_api_key
-    region_name = var.region_name
-    cos_bucket_name = var.cos_bucket_name
-    cos_service_instance_name = var.cos_service_instance_name
-    cos_bucket_region = var.cos_bucket_region
-}
+# module "cos" {
+#     source = "./cos"
+#     ibmcloud_api_key = var.ibmcloud_api_key
+#     region_name = var.region_name
+#     cos_bucket_name = var.cos_bucket_name
+#     cos_service_instance_name = var.cos_service_instance_name
+#     cos_bucket_region = var.cos_bucket_region
+# }
 
 module "cluster" {
     source = "./cluster"
@@ -51,23 +51,23 @@ module "cluster" {
     containerd_branch = var.containerd_branch
 }
 
-module "podvm_build" {
-    source = "./podvm-build"
-    ibmcloud_api_key = var.ibmcloud_api_key
-    ibmcloud_user_id = var.ibmcloud_user_id
-    cos_bucket_name = module.cos.cos_bucket_name
-    cos_service_instance_id = module.cos.cos_instance_id
-    cos_bucket_region = module.cos.cos_bucket_region
-    primary_subnet_name = var.primary_subnet_name
-    region_name = var.region_name
-    use_ibmcloud_test = var.use_ibmcloud_test
-    vpc_name = var.vpc_name
-    worker_ip = module.cluster.worker_ip
-    bastion_ip = module.cluster.bastion_ip
-    podvm_image_name = local.podvm_image_name_with_arch
-    skip_verify_console = var.skip_verify_console
-    ansible_dir = "./podvm-build/ansible"
-}
+# module "podvm_build" {
+#     source = "./podvm-build"
+#     ibmcloud_api_key = var.ibmcloud_api_key
+#     ibmcloud_user_id = var.ibmcloud_user_id
+#     cos_bucket_name = module.cos.cos_bucket_name
+#     cos_service_instance_id = module.cos.cos_instance_id
+#     cos_bucket_region = module.cos.cos_bucket_region
+#     primary_subnet_name = var.primary_subnet_name
+#     region_name = var.region_name
+#     use_ibmcloud_test = var.use_ibmcloud_test
+#     vpc_name = var.vpc_name
+#     worker_ip = module.cluster.worker_ip
+#     bastion_ip = module.cluster.bastion_ip
+#     podvm_image_name = local.podvm_image_name_with_arch
+#     skip_verify_console = var.skip_verify_console
+#     ansible_dir = "./podvm-build/ansible"
+# }
 
 module "start_cloud_api_adaptor" {
     source = "./start-cloud-api-adaptor"
@@ -75,7 +75,7 @@ module "start_cloud_api_adaptor" {
     ssh_key_id = module.cluster.ssh_key_id
     worker_ip = module.cluster.worker_ip
     bastion_ip = module.cluster.bastion_ip
-    podvm_image_id = module.podvm_build.podvm_image_id
+    podvm_image_id = "r022-569a2dda-ceff-492c-8d04-e4f94dbcd61f"
     region_name = var.region_name
     vpc_id = module.common.vpc_id
     primary_subnet_id = module.common.primary_subnet_id

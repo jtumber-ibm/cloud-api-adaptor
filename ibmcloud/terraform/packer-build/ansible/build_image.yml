@@ -1,0 +1,131 @@
+---
+- hosts: all
+  remote_user: root
+  vars:
+    golang_install_prefix: /usr/local
+    golang_version: 1.18.5
+    golang_download_file: "go{{ golang_version }}.linux-{{ ansible_architecture | regex_replace('x86_64', 'amd64') }}.tar.gz"
+    golang_download_url: "https://go.dev/dl/{{ golang_download_file }}"
+    packer_source_url: "https://github.com/hashicorp/packer.git"
+    packer_destination: /root/packer
+    packer_install_prefix: /usr/local
+    packer_plugin_source_url: https://github.com/IBM/packer-plugin-ibmcloud.git
+    packer_plugin_destination: /root/packer-ibmcloud 
+    cloud_api_adaptor_destination: /root/cloud-api-adaptor
+    kata_containers_destination: /root/kata-containers
+    python_version: 3.9.15
+    python_download_file: Python-{{ python_version }}.tgz
+    python_download_url:  https://www.python.org/ftp/python/{{ python_version }}/{{ python_download_file }}
+
+  environment:
+    GOPATH: /root/go
+  tasks:  
+    # - name: Install deb packages
+    #   apt:
+    #     name:
+    #       - "linux-modules-extra-{{ ansible_kernel }}"
+    #       - build-essential
+    #       - musl-tools
+    #       - protobuf-compiler
+    #       - cloud-image-utils
+    #       - libgpgme-dev 
+    #       - libassuan-dev
+    #       - btrfs-tools
+    #       - libdevmapper-dev 
+    #       - pkg-config
+    #       - git
+    #       - yum
+    #       - libffi6 
+    #       - libffi-dev
+    #       - zlib1g-dev
+    #       - libssl-dev
+    #       - openssl
+    #       - libreadline-gplv2-dev 
+    #       - libncursesw5-dev 
+    #       - libsqlite3-dev 
+    #       - tk-dev 
+    #       - libgdbm-dev 
+    #       - libc6-dev 
+    #       - libbz2-dev
+    #     update_cache: yes
+
+    # - name: Install deb packages for Ubuntu 20.04 or later
+    #   apt:
+    #     name:
+    #       - libbtrfs-dev
+    #   when:
+    #     - ansible_facts['distribution'] == "Ubuntu"
+    #     - ansible_facts['distribution_major_version'] | int >= 20
+
+    # - name: Install deb packages for Ubuntu 18.04 or before
+    #   apt:
+    #     name:
+    #       - btrfs-tools
+    #   when:
+    #     - ansible_facts['distribution'] == "Ubuntu"
+    #     - ansible_facts['distribution_major_version'] | int < 20
+
+    # - name: Python Version
+    #   shell: python3 --version
+    #   register: python_cmd
+
+    # - name: Install Python
+    #   ansible.builtin.import_tasks: install_python.yml
+    #   when: not python_version in python_cmd.stdout
+
+    # - name: Check if Go is installed
+    #   stat:
+    #     path: "{{ golang_install_prefix }}/bin/go"
+    #   register: go_stat
+
+    # - name: Install Go
+    #   ansible.builtin.import_tasks: install_go.yml
+    #   when: not go_stat.stat.exists
+
+    # - name: Check if Rust is installed
+    #   stat:
+    #     path: "/root/.cargo/bin/cargo"
+    #   register: rust_stat
+
+    # - name: Install Rust
+    #   ansible.builtin.import_tasks: install_rust.yml
+    #   when: not rust_stat.stat.exists
+
+    # - name: Checkout the cloud-api-adaptor repository
+    #   ansible.builtin.git:
+    #     repo: "{{ cloud_api_adaptor_repo }}"
+    #     dest: "{{ cloud_api_adaptor_destination }}"
+    #     version: "{{ cloud_api_adaptor_branch }}"
+    
+    # - name: Checkout the Kata containers repository
+    #   ansible.builtin.git:
+    #     repo: "{{ kata_containers_repo }}"
+    #     dest: "{{  kata_containers_destination }}"
+    #     version: "{{ kata_containers_branch }}"
+
+    # - name: Check if Packer is installed
+    #   stat:
+    #     path: "{{ packer_install_prefix }}/bin/packer"
+    #   register: packer_stat
+
+    # - name: Install Packer
+    #   ansible.builtin.import_tasks: install_packer.yml
+    #   when: not packer_stat.stat.exists
+
+    - name: Remove required_plugins section
+      ansible.builtin.blockinfile:
+        path: "{{ cloud_api_adaptor_destination }}/ibmcloud/ibmcloud-ubuntu.pkr.hcl"
+        marker_begin: "packer {"
+        marker_end: "}"
+        state: absent
+
+    # - name: Build Image
+    #   shell: /bin/bash -ilc "make build"
+    #   args:
+    #     chdir: "{{ cloud_api_adaptor_destination }}/ibmcloud"
+    #   environment:
+    #     CLOUD_PROVIDER: ibmcloud
+    #     IBM_API_KEY: "{{ ibmcloud_api_key }}"
+    #     REGION: "{{ region }}"
+    #     SUBNET_ID: "{{ subnet_id }}"
+    #     RESOURCE_GROUP_ID: "{{ resource_group_id }}"

@@ -21,3 +21,11 @@ variable "image_name" {
 variable "arch" {
   type = string
 }
+variable "base_image" {
+  type = string
+  default = "ibm-ubuntu-18-04-1-minimal-s390x-3"
+}
+variable "instance_profile" {
+  type = string
+  default = "bz2-2x8"
+}

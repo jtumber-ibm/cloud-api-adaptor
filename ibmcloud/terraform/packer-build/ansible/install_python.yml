@@ -1,0 +1,40 @@
+---
+- name: Create temporary directory
+  tempfile:
+    state: directory
+    suffix: python
+  register: python_temp
+
+- name: Download Python source package
+  get_url:
+    url: "{{ python_download_url }}"
+    dest: "{{ python_temp.path }}/{{ python_download_file }}"
+    mode: "0644"
+
+- name: Extract Python source package
+  unarchive:
+    src: "{{ python_temp.path }}/{{ python_download_file }}"
+    dest: "{{ python_temp.path }}"
+    remote_src: yes
+    mode: "0755"
+  register: python_unarchive
+
+- name: Python altinstall
+  shell: ./configure && make altinstall
+  args:
+    chdir: "{{ python_temp.path }}/{{ python_download_file | regex_replace('\\.tgz$', '') }}"
+
+- name: Symlink Python binaries to /usr/local/bin
+  file:
+    state: link
+    src: "/usr/local/bin/python{{ python_version | regex_replace('\\.[^\\.]+$', '') }}"
+    dest: "/usr/bin/python3"
+
+- name: Get-Pip
+  get_url:
+    url: "https://bootstrap.pypa.io/get-pip.py"
+    dest: "/root/get-pip.py"
+    mode: "0644"
+
+- name: Install Pip
+  shell: python3 /root/get-pip.py

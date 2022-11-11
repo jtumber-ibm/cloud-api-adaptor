@@ -11,7 +11,7 @@ IMAGE_PREFIX := podvm
 
 ARCH := $(subst x86_64,amd64,$(shell uname -m))
 
-FILES_DIR := files
+FILES_DIR := ../image/files
 FILES      = $(shell find "$(FILES_DIR)" -type f -o -type l)
 
 ifndef IMAGE_NAME

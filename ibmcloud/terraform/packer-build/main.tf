@@ -1,7 +1,7 @@
 
 locals {
   image_map = {
-    amd64 = "ibm-ubuntu-18-04-6-minimal-amd64-3"
+    amd64 = "ibm-ubuntu-20-04-3-minimal-amd64-1"
     s390x = "ibm-ubuntu-18-04-1-minimal-s390x-3"
   }
   profile_map = {
@@ -85,19 +85,49 @@ resource "ibm_is_instance" "packer" {
   zone = var.zone
   keys = [data.ibm_is_ssh_key.ssh_key.id]
 
-  user_data = templatefile("./cloud-init.tftpl", { 
-    cloud_api_adaptor_branch = var.cloud_api_adaptor_branch, 
-    cloud_api_adaptor_url = var.cloud_api_adaptor_url,
-    kata_containers_repo = var.kata_containers_repo,
-    kata_containers_branch = var.kata_containers_branch,
-    region = var.region,
-    subnet_id = ibm_is_subnet.primary.id,
-    resource_group_id = data.ibm_resource_group.default.id,
-    ibmcloud_api_key = var.ibmcloud_api_key
-  })
 }
 
 resource "ibm_is_floating_ip" "packer" {
   name = "${var.vpc_name}-floating-ip"
   target = ibm_is_instance.packer.primary_network_interface[0].id
+}
+
+
+resource "local_file" "inventory" {
+  filename = "${path.module}/ansible/inventory"
+  content = <<EOF
+[cluster]
+${ibm_is_floating_ip.packer.address}
+
+[cluster:vars]
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+EOF
+}
+
+resource "local_file" "group_vars" {
+  filename = "${path.module}/ansible/group_vars/all"
+  content = <<EOF
+---
+cloud_api_adaptor_repo: ${var.cloud_api_adaptor_repo}
+cloud_api_adaptor_branch: ${var.cloud_api_adaptor_branch}
+kata_containers_repo: ${var.kata_containers_repo}
+kata_containers_branch: ${var.kata_containers_branch}
+region: ${var.region}
+subnet_id: ${ibm_is_subnet.primary.id}
+resource_group_id: ${data.ibm_resource_group.default.id}
+ibmcloud_api_key: ${var.ibmcloud_api_key}
+EOF
+}
+
+resource "null_resource" "build_image" {
+  triggers = {
+    inventory = resource.local_file.inventory.content
+    group_vars = resource.local_file.group_vars.content
+  }
+
+  provisioner "local-exec" {
+    working_dir = "${path.module}/ansible"
+    command = "ansible-playbook -i inventory -u root ./build_image.yml"
+  }
+  
 }

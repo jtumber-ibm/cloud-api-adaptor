@@ -14,17 +14,17 @@ variable "ssh_pub_key" {
     default = ""
 }
 
-variable "podvm_image_name" {}
+# variable "podvm_image_name" {}
 
-variable "cos_bucket_name" {}
+# variable "cos_bucket_name" {}
 
-variable "cos_service_instance_name" {
-    default = "cos-image-instance"
-}
+# variable "cos_service_instance_name" {
+#     default = "cos-image-instance"
+# }
 
-variable "cos_bucket_region" {
-    default = ""
-}
+# variable "cos_bucket_region" {
+#     default = ""
+# }
 
 variable "floating_ip_name" {
     default = "tok-gateway-ip"

@@ -26,7 +26,7 @@ variable "cloud_api_adaptor_branch" {
     default = "ibmcloud_packer"
 }
 
-variable "cloud_api_adaptor_url" {
+variable "cloud_api_adaptor_repo" {
     default = "https://github.com/jtumber-ibm/cloud-api-adaptor.git"
 }   
 
