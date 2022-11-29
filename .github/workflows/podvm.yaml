@@ -33,3 +33,9 @@ jobs:
           working_directory: podvm
         env:
           PACKER_LOG: 1
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: podvm-image-amd64.qcow2
+          path: podvm/output/peer-pod.qcow2
