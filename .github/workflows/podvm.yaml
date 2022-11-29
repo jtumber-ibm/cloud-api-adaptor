@@ -20,8 +20,9 @@ jobs:
         with:
           command: validate
           arguments: -syntax-only
-          target: qcow.pkr.hcl
-          working_directory: podvm
+          target: podvm/qcow.pkr.hcl
+        env:
+          PACKER_LOG: 1
 
       # build artifact
       - name: Build Artifact
@@ -29,8 +30,7 @@ jobs:
         with:
           command: build
           arguments: "-color=false -on-error=abort"
-          target: qcow.pkr.hcl
-          working_directory: podvm
+          target: podvm/qcow.pkr.hcl
         env:
           PACKER_LOG: 1
 
