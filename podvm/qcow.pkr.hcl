@@ -1,3 +1,14 @@
+locals {
+  binary = {
+    amd64 = "qemu-system-x86_64"
+    s390x = "qemu-system-s390x"
+  }
+  machine = {
+    amd64 = "pc"
+    s390x = "s390-ccw-virtio"
+  }
+}
+
 source "qemu" "ubuntu" {
   boot_command      = ["<enter>"]
   disk_compression  = true
@@ -13,12 +24,18 @@ source "qemu" "ubuntu" {
   ssh_port          = 22
   ssh_username      = "${var.ssh_username}"
   ssh_wait_timeout  = "300s"
-  vm_name           = "${var.qemu_image_name}"
+  boot_wait         = "300s"
+  vm_name           = "${var.image_name_prefix}-${var.arch}.qcow2"
   shutdown_command  = "sudo shutdown -h now" 
-  qemu_binary       = "qemu-system-s390x"
-  machine_type      = "s390-ccw-virtio"
+  qemu_binary       = "${lookup(local.binary, var.arch, "qemu-system-x86_64")}" 
+  machine_type      = "${lookup(local.machine, var.arch, "pc")}" 
 }
 
 build {
   sources = ["source.qemu.ubuntu"]
+
+  provisioner "file" {
+    source      = "copy-files.sh"
+    destination = "~/copy-files.sh"
+  }
 }

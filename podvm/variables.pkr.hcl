@@ -28,6 +28,11 @@ variable "cloud_image_url" {
   default = "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-s390x.img"
 }
 
+variable "arch" {
+  type = string
+  default = "s390x"
+}
+
 variable "memory" {
   type    = string
   default = "2048M"
@@ -43,7 +48,7 @@ variable "ssh_username" {
   default = "ubuntu"
 }
 
-variable "qemu_image_name" {
+variable "image_name_prefix" {
   type    = string
-  default = "podvm-image-s390x.qcow2"
+  default = "podvm-image"
 }
