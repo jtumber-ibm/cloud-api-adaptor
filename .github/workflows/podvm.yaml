@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install qemu
-        run: sudo apt-get install -y qemu qemu-kvm
+        run: sudo apt-get install -y qemu-system-s390x
 
       - name: Setup `packer` from renamed action
         uses: hashicorp/packer-github-actions@rewrite-to-typescript
@@ -34,5 +34,5 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: podvm-image-amd64.qcow2
-          path: podvm/output/peer-pod.qcow2
+          name: podvm-image-s390x.qcow2
+          path: podvm/output/podvm-image-s390x.qcow2

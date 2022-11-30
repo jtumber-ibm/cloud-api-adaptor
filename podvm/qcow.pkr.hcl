@@ -15,6 +15,9 @@ source "qemu" "ubuntu" {
   ssh_wait_timeout  = "300s"
   vm_name           = "${var.qemu_image_name}"
   shutdown_command  = "sudo shutdown -h now" 
+  qemu_binary       = "qemu-system-s390x"
+  machine_type      = "s390-ccw-virtio"
+  accelerator       = "tcg"
 }
 
 build {

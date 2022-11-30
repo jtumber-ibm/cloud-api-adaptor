@@ -20,12 +20,12 @@ variable "disk_size" {
 
 variable "cloud_image_checksum" {
   type    = string
-  default = "057a858ba07a3411ea63b157ad4225ba7721fafe4a9c5cbabade1562c1a40956"
+  default = "b89072c376f980beb080e2bf9d8b71fe865e264c8387bfc6d11cb06b5f276804"
 }
 
 variable "cloud_image_url" {
   type    = string
-  default = "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img"
+  default = "https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-s390x.img"
 }
 
 variable "memory" {
@@ -45,5 +45,5 @@ variable "ssh_username" {
 
 variable "qemu_image_name" {
   type    = string
-  default = "podvm-image-amd64.qcow2"
+  default = "podvm-image-s390x.qcow2"
 }
