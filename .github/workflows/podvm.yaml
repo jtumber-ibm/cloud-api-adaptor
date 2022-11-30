@@ -14,29 +14,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # validate templates
-      - name: Validate Template
-        uses: hashicorp/packer-github-actions@master
-        with:
-          command: validate
-          arguments: -syntax-only
-          target: podvm/qcow.pkr.hcl
-        env:
-          PACKER_LOG: 1
-
       - name: Install qemu
         run: sudo apt-get install -y qemu qemu-kvm
 
-      # build artifact
-      - name: Build Artifact
-        uses: hashicorp/packer-github-actions@master
+      - name: Setup `packer` from renamed action
+        uses: hashicorp/packer-github-actions@rewrite-to-typescript
+        id: setup
         with:
-          command: build
-          arguments: "-color=false -on-error=abort"
-          target: .
-          working_directory: podvm
-        env:
-          PACKER_LOG: 1
+          version: "1.8.1"
+
+      - name: Run `packer` init
+        run: packer init
+        working-directory: podvm
+
+      - name: Build `podvm` image 
+        run: packer build .
+        working-directory: podvm
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
