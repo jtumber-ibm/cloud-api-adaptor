@@ -17,7 +17,6 @@ source "qemu" "ubuntu" {
   shutdown_command  = "sudo shutdown -h now" 
   qemu_binary       = "qemu-system-s390x"
   machine_type      = "s390-ccw-virtio"
-  accelerator       = "tcg"
 }
 
 build {
