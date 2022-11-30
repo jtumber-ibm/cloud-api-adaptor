@@ -24,7 +24,7 @@ jobs:
           version: "1.8.1"
 
       - name: Run `packer` init
-        run: packer init
+        run: packer init .
         working-directory: podvm
 
       - name: Build `podvm` image 
