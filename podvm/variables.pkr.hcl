@@ -20,7 +20,7 @@ variable "disk_size" {
 
 variable "cloud_image_checksum" {
   type    = string
-  default = "d96622d77bcbab5526fd42e7d933ee851d239327946992a018b0bfc9fad777e7"
+  default = "057a858ba07a3411ea63b157ad4225ba7721fafe4a9c5cbabade1562c1a40956"
 }
 
 variable "cloud_image_url" {
