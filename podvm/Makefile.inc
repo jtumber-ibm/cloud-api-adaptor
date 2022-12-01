@@ -13,7 +13,18 @@ UMOCI_VERSION      = 0.4.7
 
 IMAGE_PREFIX := podvm
 
-ARCH := $(subst x86_64,amd64,$(shell uname -m))
+HOST_ARCH   := $(shell uname -m)
+ARCH        ?= $(HOST_ARCH)
+DEB_ARCH    := $(subst x86_64,amd64,$(ARCH))
+LIBC        := $(if $(findstring s390x,$(ARCH)),gnu,musl)
+RUST_TARGET := $(ARCH)-unknown-linux-$(LIBC)
+
+ifneq ($(HOST_ARCH),$(ARCH))
+    ifeq ($(CC),cc)
+        $(error A foreign ARCH was passed, but no CC alternative. Please specify a CC alternative. e.g. $(ARCH)-linux-$(LIBC)-gcc)
+	endif
+    RUST_FLAGS := CC=$(CC) ARCH=$(ARCH)
+endif
 
 FILES_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/files
 
@@ -26,7 +37,7 @@ COMMIT := $(shell	commit=$$(git describe --match '' --dirty --always) && \
 ifndef COMMIT
 $(error Failed to derive an image name. Explicitly define IMAGE_NAME)
 endif
-IMAGE_NAME := $(IMAGE_PREFIX)-$(COMMIT)-$(ARCH)
+IMAGE_NAME := $(IMAGE_PREFIX)-$(COMMIT)-$(DEB_ARCH)
 endif
 
 IMAGE_SUFFIX ?= 
@@ -70,16 +81,16 @@ STATIC_LIBSECCOMP_DIR     = $(abspath staticlib)
 STATIC_LIBSECCOMP         = $(STATIC_LIBSECCOMP_DIR)/kata-libseccomp/lib/libseccomp.a
 
 $(AGENT_PROTOCOL_FORWARDER): force
-	cd "$(AGENT_PROTOCOL_FORWARDER_SRC)" && $(MAKE) agent-protocol-forwarder
+	cd "$(AGENT_PROTOCOL_FORWARDER_SRC)" && ARCH=$(ARCH) $(MAKE) agent-protocol-forwarder
 	install -D --compare "$(AGENT_PROTOCOL_FORWARDER_SRC)/agent-protocol-forwarder" "$@"
 
 $(KATA_AGENT): force $(STATIC_LIBSECCOMP)
-	cd "$(KATA_AGENT_SRC)/../libs" && $(MAKE) BUILD_TYPE=$(KATA_AGENT_BUILD_TYPE) LIBSECCOMP_LINK_TYPE=static LIBSECCOMP_LIB_PATH=$(dir $(STATIC_LIBSECCOMP))
-	cd "$(KATA_AGENT_SRC)" && $(MAKE) BUILD_TYPE=$(KATA_AGENT_BUILD_TYPE) LIBSECCOMP_LINK_TYPE=static LIBSECCOMP_LIB_PATH=$(dir $(STATIC_LIBSECCOMP))
-	install -D --compare "$(KATA_AGENT_SRC)/target/$(shell uname -m)-unknown-linux-$(if $(findstring s390x,$(shell uname -m)),gnu,musl)/$(KATA_AGENT_BUILD_TYPE)/$(@F)" "$@"
+	cd "$(KATA_AGENT_SRC)/../libs" && $(RUST_FLAGS) $(MAKE) BUILD_TYPE=$(KATA_AGENT_BUILD_TYPE) LIBSECCOMP_LINK_TYPE=static LIBSECCOMP_LIB_PATH=$(dir $(STATIC_LIBSECCOMP))
+	cd "$(KATA_AGENT_SRC)" && $(RUST_FLAGS) $(MAKE) BUILD_TYPE=$(KATA_AGENT_BUILD_TYPE) LIBSECCOMP_LINK_TYPE=static LIBSECCOMP_LIB_PATH=$(dir $(STATIC_LIBSECCOMP))
+	install -D --compare "$(KATA_AGENT_SRC)/target/$(RUST_TARGET)/$(KATA_AGENT_BUILD_TYPE)/$(@F)" "$@"
 
 $(STATIC_LIBSECCOMP):
-	$(STATIC_LIBSECCOMP_BUILDER) $(STATIC_LIBSECCOMP_DIR)/kata-libseccomp $(STATIC_LIBSECCOMP_DIR)/kata-gperf
+	$(RUST_FLAGS) $(STATIC_LIBSECCOMP_BUILDER) $(STATIC_LIBSECCOMP_DIR)/kata-libseccomp $(STATIC_LIBSECCOMP_DIR)/kata-gperf
 
 # Skoepo package packages are available in RHEL/CentOS 8 or later and Ubuntu 20.10 or later
 $(SKOPEO_SRC):
@@ -102,7 +113,7 @@ $(UMOCI): $(UMOCI_SRC)/umoci
 	install -D --compare "$(UMOCI_SRC)/umoci" "$@"
 
 $(PAUSE_SRC): $(SKOPEO_SRC)/bin/skopeo
-	$(SKOPEO_SRC)/bin/skopeo --policy "$(FILES_DIR)/etc/containers/policy.json" copy "$(PAUSE_REPO):$(PAUSE_VERSION)" "oci:$(PAUSE_SRC):$(PAUSE_VERSION)"
+	$(SKOPEO_SRC)/bin/skopeo --override-arch $(ARCH) --policy "$(FILES_DIR)/etc/containers/policy.json" copy "$(PAUSE_REPO):$(PAUSE_VERSION)" "oci:$(PAUSE_SRC):$(PAUSE_VERSION)"
 
 $(PAUSE): | $(PAUSE_SRC) $(UMOCI_SRC)/umoci
 	$(UMOCI_SRC)/umoci unpack --rootless --image "$(PAUSE_SRC):$(PAUSE_VERSION)" "${FILES_DIR}/$(PAUSE_BUNDLE)"
