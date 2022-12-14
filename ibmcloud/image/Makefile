@@ -5,7 +5,7 @@
 
 include ../../podvm/Makefile.inc
 
-.PHONY: build push verify ubuntu clean
+.PHONY: build image push verify ubuntu clean
 
 UBUNTU_RELEASE     = focal
 UBUNTU_IMAGE_URL  := https://cloud-images.ubuntu.com/$(UBUNTU_RELEASE)/current/$(UBUNTU_RELEASE)-server-cloudimg-$(ARCH).img
@@ -14,6 +14,16 @@ UBUNTU_IMAGE_FILE := $(notdir $(UBUNTU_IMAGE_URL))
 UBUNTU_PACKAGES = jq
 
 IMAGE_SUFFIX := .qcow2
+
+image: $(BINARIES) $(FILES)
+	mkdir -p toupload
+	packer build -var resource_group_id=${IBM_RESOURCE_GROUP_ID} \
+		-var subnet_id=${IBMCLOUD_VPC_SUBNET_ID} \
+		-var base_image=${IBMCLOUD_VPC_BASE_IMAGE} \
+		-var instance_profile=${IBMCLOUD_VPC_INSTANCE_PROFILE} \
+		-var region=${IBMCLOUD_VPC_REGION} \
+		-var image_name=${IMAGE_NAME} .
+	rm -fr toupload
 
 build: $(IMAGE_FILE)
 
