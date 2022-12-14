@@ -8,6 +8,7 @@ packer {
 }
 
 source "ibmcloud-vpc" "ubuntu" {
+  api_key = "${var.ibm_api_key}"
   region  = "${var.region}"
 
   subnet_id         = "${var.subnet_id}"
