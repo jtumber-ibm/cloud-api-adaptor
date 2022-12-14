@@ -17,11 +17,12 @@ IMAGE_SUFFIX := .qcow2
 
 image: $(BINARIES) $(FILES)
 	mkdir -p toupload
-	packer build -var resource_group_id=${IBM_RESOURCE_GROUP_ID} \
+	@packer build -var resource_group_id=${IBM_RESOURCE_GROUP_ID} \
 		-var subnet_id=${IBMCLOUD_VPC_SUBNET_ID} \
 		-var base_image=${IBMCLOUD_VPC_BASE_IMAGE} \
 		-var instance_profile=${IBMCLOUD_VPC_INSTANCE_PROFILE} \
 		-var region=${IBMCLOUD_VPC_REGION} \
+		-var ibm_api_key=${IBMCLOUD_API_KEY} \
 		-var image_name=${IMAGE_NAME} .
 	rm -fr toupload
 
