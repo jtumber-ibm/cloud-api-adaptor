@@ -1,0 +1,38 @@
+---
+- name: Download Packer source
+  ansible.builtin.git:
+    repo: "{{ packer_source_url }}"
+    dest: "{{ packer_destination }}"
+- name: Build Packer project
+  command: go build -o bin/packer .
+  args:
+    creates: bin/packer
+    chdir: "{{ packer_destination }}"
+- name: Symlink Packer binaries to /usr/local/bin
+  file:
+    state: link
+    src: "{{ packer_destination }}/bin/packer"
+    dest: "{{ packer_install_prefix }}/bin/packer"
+- name: Download Plugin source
+  ansible.builtin.git:
+    repo: "{{ packer_plugin_source_url }}"
+    dest: "{{ packer_plugin_destination }}"
+    force: true
+- name: Install plugin pip dependancies
+  ansible.builtin.pip:
+    name: setuptools-rust
+- name: Setup Packer Plugin environment
+  shell: make setup
+  args:
+    chdir: "{{ packer_plugin_destination }}/developer"
+- name: Build Packer Plugin
+  shell: |
+    go mod tidy
+    go mod vendor
+    go generate ./builder/ibmcloud/...
+    go mod vendor
+    go build .
+  args:
+    chdir: "{{ packer_plugin_destination }}"
+- name: Copy Packer Plugin into Working Directory
+  command: mv "{{ packer_plugin_destination }}/packer-plugin-ibmcloud" "{{ cloud_api_adaptor_destination }}/ibmcloud/image/packer-plugin-ibmcloud"

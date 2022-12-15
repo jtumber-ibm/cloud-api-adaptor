@@ -1,0 +1,121 @@
+---
+- hosts: all
+  remote_user: root
+  vars:
+    golang_install_prefix: /usr/local
+    golang_version: 1.18.5
+    golang_download_file: "go{{ golang_version }}.linux-{{ ansible_architecture | regex_replace('x86_64', 'amd64') }}.tar.gz"
+    golang_download_url: "https://go.dev/dl/{{ golang_download_file }}"
+    packer_source_url: "https://github.com/hashicorp/packer.git"
+    packer_destination: /root/packer
+    packer_install_prefix: /usr/local
+    packer_plugin_source_url: https://github.com/IBM/packer-plugin-ibmcloud.git
+    packer_plugin_destination: /root/packer-ibmcloud
+    cloud_api_adaptor_destination: /root/cloud-api-adaptor
+    kata_containers_destination: /root/kata-containers
+  environment:
+    GOPATH: /root/go
+    PATH: /root/go/bin:/root/.cargo/bin:{{ ansible_env.PATH }}
+  tasks:
+    # - name: Install deb packages
+    #   apt:
+    #     name:
+    #       - "linux-modules-extra-{{ ansible_kernel }}"
+    #       - build-essential
+    #       - musl-tools
+    #       - protobuf-compiler
+    #       - cloud-image-utils
+    #       - python3-dev
+    #       - libgpgme-dev
+    #       - libassuan-dev
+    #       - libdevmapper-dev
+    #       - pkg-config
+    #       - git
+    #       - zlib1g-dev
+    #       - libssl-dev
+    #       - openssl
+    #       - libreadline-gplv2-dev
+    #       - libncursesw5-dev
+    #       - libsqlite3-dev
+    #       - tk-dev
+    #       - libgdbm-dev
+    #       - libc6-dev
+    #       - libbz2-dev
+    #       - libbtrfs-dev
+    #     update_cache: yes
+
+    # - name: Get-Pip
+    #   get_url:
+    #     url: "https://bootstrap.pypa.io/get-pip.py"
+    #     dest: "/root/get-pip.py"
+    #     mode: "0644"
+
+    # - name: Install Pip
+    #   shell: python3 /root/get-pip.py
+
+    # - name: Check if Go is installed
+    #   stat:
+    #     path: "{{ golang_install_prefix }}/bin/go"
+    #   register: go_stat
+
+    # - name: Install Go
+    #   ansible.builtin.import_tasks: install_go.yml
+    #   when: not go_stat.stat.exists
+
+    # - name: Check if Rust is installed
+    #   stat:
+    #     path: "/root/.cargo/bin/cargo"
+    #   register: rust_stat
+
+    # - name: Install Rust
+    #   ansible.builtin.import_tasks: install_rust.yml
+    #   when: not rust_stat.stat.exists
+
+    # - name: Checkout the cloud-api-adaptor repository
+    #   ansible.builtin.git:
+    #     repo: "{{ cloud_api_adaptor_repo }}"
+    #     dest: "{{ cloud_api_adaptor_destination }}"
+    #     version: "{{ cloud_api_adaptor_branch }}"
+
+    # - name: Checkout the Kata containers repository
+    #   ansible.builtin.git:
+    #     repo: "{{ kata_containers_repo }}"
+    #     dest: "{{  kata_containers_destination }}"
+    #     version: "{{ kata_containers_branch }}"
+
+    # - name: Check if Packer is installed
+    #   stat:
+    #     path: "{{ packer_install_prefix }}/bin/packer"
+    #   register: packer_stat
+
+    # - name: Install Packer
+    #   ansible.builtin.import_tasks: install_packer.yml
+    #   when: not packer_stat.stat.exists
+
+    - name: Packer Template has required_plugins section
+      ansible.builtin.lineinfile:
+        path: "{{ cloud_api_adaptor_destination }}/ibmcloud/image/ibmcloud-ubuntu.pkr.hcl"
+        regexp: 'required_plugins'
+        state: absent
+      check_mode: true
+      changed_when: false
+      register: plugins
+
+    - name: Remove required_plugins section
+      shell: sed -i 1,8d ibmcloud-ubuntu.pkr.hcl
+      args:
+        chdir: "{{ cloud_api_adaptor_destination }}/ibmcloud/image"
+      when: plugins.found
+
+    - name: Build Image
+      shell: make image
+      args:
+        chdir: "{{ cloud_api_adaptor_destination }}/ibmcloud/image"
+      environment:
+        CLOUD_PROVIDER: ibmcloud
+        IBMCLOUD_API_KEY: "{{ ibmcloud_api_key }}"
+        IBMCLOUD_VPC_REGION: "{{ region }}"
+        IBMCLOUD_VPC_SUBNET_ID: "{{ subnet_id }}"
+        IBM_RESOURCE_GROUP_ID: "{{ resource_group_id }}"
+        IBMCLOUD_VPC_INSTANCE_PROFILE: "{{ instance_profile }}"
+        IBMCLOUD_VPC_BASE_IMAGE: "{{ base_image }}"
