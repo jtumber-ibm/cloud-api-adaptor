@@ -66,17 +66,15 @@ ENV S390X_IMAGE=ibm-ubuntu-20-04-2-minimal-s390x-1
 ENV AMD64_PROFILE=bx2-1x4
 ENV S390X_PROFILE=bz2-1x4
 
-RUN printf "IBMCLOUD_RESOURCE_GROUP_ID=$RESOURCE_GROUP\n \
-IBMCLOUD_VPC_SUBNET_ID=$SUBNET_ID\n \
-IBMCLOUD_VPC_BASE_IMAGE=$([ $PODVM_ARCH = amd64 ] && echo $AMD64_IMAGE || echo $S390X_IMAGE)\n \
-IBMCLOUD_VPC_INSTANCE_PROFILE=$([ $PODVM_ARCH = amd64 ] && echo $AMD64_PROFILE || echo $S390X_PROFILE)\n \
-IBMCLOUD_VPC_REGION=$REGION\n" > $IMAGE_DIRECTORY/.env
+RUN printf "IBMCLOUD_RESOURCE_GROUP_ID=$RESOURCE_GROUP\n\
+IBMCLOUD_VPC_SUBNET_ID=$SUBNET_ID\n\
+IBMCLOUD_VPC_BASE_IMAGE=$([ $PODVM_ARCH = amd64 ] && echo $AMD64_IMAGE || echo $S390X_IMAGE)\n\
+IBMCLOUD_VPC_INSTANCE_PROFILE=$([ $PODVM_ARCH = amd64 ] && echo $AMD64_PROFILE || echo $S390X_PROFILE)\n\
+IBMCLOUD_VPC_REGION=$REGION\n" > ./$IMAGE_DIRECTORY/.env 
 
-RUN cat $IMAGE_DIRECTORY/.env
-
-# RUN cd cloud-api-adaptor/ibmcloud && \
-#      CLOUD_PROVIDER=$CLOUD_PROVIDER ARCH=$PODVM_ARCH make binaries
+RUN cd cloud-api-adaptor/ibmcloud && \
+     CLOUD_PROVIDER=$CLOUD_PROVIDER ARCH=$PODVM_ARCH make binaries
 
 RUN --mount=type=secret,id=ibm_api_key \
-    cd $IMAGE_DIRECTORY && source $IMAGE_DIRECTORY/.env \
-    && source /run/secrets/ibm_api_key && make image
+    cd $IMAGE_DIRECTORY && . ./.env \
+    && . /run/secrets/ibm_api_key && make image
