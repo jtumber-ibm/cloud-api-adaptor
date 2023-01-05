@@ -17,6 +17,8 @@ KATA_AGENT_SRC := ../../kata-containers/src/agent
 STATIC_LIBSECCOMP_BUILDER := ../../kata-containers/ci/install_libseccomp.sh
 AGENT_PROTOCOL_FORWARDER_SRC := ../
 
+QEMU_MACHINE_TYPE_s390x := s390-ccw-virtio
+
 image: $(IMAGE_FILE)
 
 setopts:
@@ -24,7 +26,13 @@ ifeq ($(PODVM_DISTRO),ubuntu)
 	@echo defined
 	$(eval OPTS := -var qemu_image_name=${IMAGE_FILE} \
 	-var cloud_image_url=${UBUNTU_IMAGE_URL} \
-	-var cloud_image_checksum=${UBUNTU_IMAGE_CHECKSUM} qcow2/ubuntu)
+	-var cloud_image_checksum=${UBUNTU_IMAGE_CHECKSUM})
+ifneq ($(HOST_ARCH),$(ARCH))
+	$(eval OPTS += -var qemu_binary=qemu-system-${ARCH} \
+	-var machine_type=${QEMU_MACHINE_TYPE_${ARCH}} \
+	-var boot_wait=300s)
+endif
+	$(eval OPTS +=  qcow2/ubuntu)
 else ifeq ($(PODVM_DISTRO),rhel)
 ifndef RHEL_IMAGE_URL
 	$(error "RHEL_IMAGE_URL is not defined")

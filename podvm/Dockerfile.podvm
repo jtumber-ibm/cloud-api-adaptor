@@ -11,6 +11,12 @@ FROM ${BUILDER_IMG} AS podvm_builder
 ARG CLOUD_PROVIDER=libvirt
 ARG PODVM_DISTRO=ubuntu
 ARG AA_KBC=offline_fs_kbc
+# If not provided, uses system architecture
+ARG ARCH
+
+# Installs add-ons for foreign target, if required
+COPY hack/cross-build-extras.sh cross-build-extras.sh
+RUN ./cross-build-extras.sh
 
 ENV CLOUD_PROVIDER ${CLOUD_PROVIDER}
 ENV PODVM_DISTRO ${PODVM_DISTRO}
