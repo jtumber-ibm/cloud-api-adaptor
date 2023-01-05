@@ -47,3 +47,23 @@ variable "qemu_image_name" {
   type    = string
   default = "peer-pod"
 }
+
+variable "qemu_binary" {
+  type    = string
+  default = "qemu-system-x86_64"
+}
+
+variable "machine_type" {
+  type = string
+  default = "pc"
+}
+
+variable "boot_wait" {
+  type = string
+  default = "10s"
+}
+
+variable "output_directory" {
+  type = string
+  default = "output"
+}
