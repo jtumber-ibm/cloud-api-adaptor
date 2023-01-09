@@ -34,7 +34,7 @@ jobs:
     - name: Login to Quay container Registry
       uses: docker/login-action@v2
       with:
-        registry: icr.io
+        registry: uk.icr.io
         username: ${{ secrets.IBM_IAM_USERNAME }}
         password: ${{ secrets.IBM_IAM_PASSWORD }}
 
