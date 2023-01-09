@@ -4,7 +4,7 @@
 #
 # Builds pod vm image inside container
 #
-ARG BUILDER_IMG="quay.io/confidential-containers/cloud-api-adaptor-podvm-builder-ubuntu"
+ARG BUILDER_IMG="uk.icr.io/jt-cloud-api-adaptor/cloud-api-adaptor-podvm-builder-ubuntu"
 
 FROM ${BUILDER_IMG} AS podvm_builder
 
