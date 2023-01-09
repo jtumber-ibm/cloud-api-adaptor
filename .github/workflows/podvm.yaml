@@ -42,9 +42,11 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         tags: |
-          icr.io/cloud-api-adaptor/cloud-api-adaptor-podvm-${{ matrix.os }}:latest
+          uk.icr.io/jt-cloud-api-adaptor/cloud-api-adaptor-podvm-${{ matrix.os }}:latest
         push: true
         context: podvm
         platforms: linux/amd64
         file: |
           podvm/${{ matrix.dockerfile }}
+        build-args: |
+          "BUILDER_IMG=uk.icr.io/jt-cloud-api-adaptor/cloud-api-adaptor-podvm-builder-ubuntu:latest"
