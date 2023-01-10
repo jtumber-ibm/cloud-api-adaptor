@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Create pod vm image
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -34,4 +34,4 @@ jobs:
           - ubuntu-latest
     steps:
     - name: Check matrix
-      run: echo ${{ matrix.provider }} ${{ matrix.os }} ${{ matrix.target }} ${{ matrix.dockerfile }}
+      run: echo ${{ matrix.provider }}, ${{ matrix.os }}, ${{ matrix.target }}, ${{ matrix.dockerfile }}, ${{ matrix.runner }}
