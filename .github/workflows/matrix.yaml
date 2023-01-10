@@ -1,40 +1,39 @@
 ---
 name: matrix
 on:
-  push:
+  release:
+    types: [created]
 
 jobs:
   build:
     name: Create pod vm image
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         os:
           # Please keep this list in alphabetical order.
-          - centos
           - ubuntu
         provider:
           # Please keep this list in alphabetical order.
-          - aws
-          - azure
           - ibmcloud
-          - libvirt
-          - vsphere
-        target:
-          - x86_64
         include:
           - os: centos
             dockerfile: Dockerfile.podvm.centos
           - os: ubuntu
             dockerfile: Dockerfile.podvm
-          - os: ubuntu
-            target: s390x
-            provider: ibmcloud
-            dockerfile: Dockerfile.podvm
-            runner: ubuntu-latest
         runner:
           - ubuntu-latest
     steps:
     - name: Check matrix
       run: echo ${{ matrix.provider }}, ${{ matrix.os }}, ${{ matrix.target }}, ${{ matrix.dockerfile }}, ${{ matrix.runner }}
+    - name: Extract Asset
+      run: |
+        CID=$(docker create --name temp-container quay.io/confidential-containers/podvm-${{ matrix.provider }}-${{ matrix.os }}:latest /bin/sh)
+        podvm=$(docker export $CID | tar t | grep podvm)
+        docker cp temp-container:/$podvm podvm-${{ matrix.provider }}-${{ matrix.os }}.qcow2
+        docker rm temp-container
+    - name: Upload Asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: podvm-${{ matrix.provider }}-${{ matrix.os }}.qcow2
