@@ -21,7 +21,7 @@ jobs:
           - ibmcloud
           - libvirt
           - vsphere
-        target_arch:
+        target:
           - amd64
         include:
           - os: centos
@@ -29,9 +29,9 @@ jobs:
           - os: ubuntu
             dockerfile: Dockerfile.podvm
           - provider: ibmcloud
-            target_arch: s390x
+            target: s390x
         runner:
           - ubuntu-latest
     steps:
     - name: Check matrix
-      run: echo ${{ matrix.provider }} ${{ matrix.os }} ${{ matrix.target_arch }} ${{ matrix.dockerfile }}
+      run: echo ${{ matrix.provider }} ${{ matrix.os }} ${{ matrix.target }} ${{ matrix.dockerfile }}
