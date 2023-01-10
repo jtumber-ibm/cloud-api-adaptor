@@ -28,8 +28,6 @@ jobs:
             dockerfile: Dockerfile.podvm.centos
           - os: ubuntu
             dockerfile: Dockerfile.podvm
-          - provider: ibmcloud
-            target: s390x
         runner:
           - ubuntu-latest
     steps:
