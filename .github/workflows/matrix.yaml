@@ -21,13 +21,18 @@ jobs:
           - ibmcloud
           - libvirt
           - vsphere
+        target:
+          - x86_64
         include:
           - os: centos
             dockerfile: Dockerfile.podvm.centos
           - os: ubuntu
             dockerfile: Dockerfile.podvm
-          - provider: ibmcloud
-            target: [s390x, amd64]
+          - os: ubuntu
+            target: s390x
+            provider: ibmcloud
+            dockerfile: Dockerfile.podvm
+            runner: ubuntu-latest
         runner:
           - ubuntu-latest
     steps:
