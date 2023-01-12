@@ -1,5 +1,8 @@
 name: Test Build ARG
-on: push
+on:
+  release:
+    types: [created]
+
 
 jobs:
   build:
@@ -8,20 +11,3 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Build and push
-      uses: docker/build-push-action@v3
-      with:
-        tags: |
-          uk.icr.io/jt-cloud-api-adaptor/test-build-arg:latest
-        push: false
-        context: podvm
-        platforms: linux/amd64
-        file: |
-          podvm/Dockerfile.arg_test
-        build-args: |
-          "CLOUD_PROVIDER=abc"
-          "ARCH=s390x"
