@@ -6,6 +6,7 @@
 # If ARCH is not set, exit
 [[ -z $ARCH ]] && exit 0
 
+ARCH=${ARCH/amd64/x86_64}
 # If ARCH is equal to HOST, exit
 [[ $ARCH = $(uname -m) ]] && exit 0
 
