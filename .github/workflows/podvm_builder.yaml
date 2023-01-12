@@ -33,7 +33,7 @@ jobs:
       with:
         registry: uk.icr.io
         username: ${{ secrets.IBM_IAM_USERNAME }}
-        password: ${{ secrets.IBM_IAM_USERNAME }}
+        password: ${{ secrets.IBM_IAM_PASSWORD }}
 
     - name: Build and push
       uses: docker/build-push-action@v3
