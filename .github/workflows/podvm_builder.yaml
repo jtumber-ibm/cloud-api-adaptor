@@ -12,11 +12,8 @@ jobs:
       matrix:
         os:
           # Please keep this list in alphabetical order.
-          - centos
           - ubuntu
         include:
-          - os: centos
-            dockerfile: Dockerfile.podvm_builder.centos
           - os: ubuntu
             dockerfile: Dockerfile.podvm_builder
         runner:
@@ -34,16 +31,16 @@ jobs:
     - name: Login to Quay container Registry
       uses: docker/login-action@v2
       with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: uk.icr.io
+        username: ${{ secrets.IBM_IAM_USERNAME }}
+        password: ${{ secrets.IBM_IAM_USERNAME }}
 
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
         tags: |
-          quay.io/confidential-containers/podvm-builder-${{ matrix.os }}:latest
-          quay.io/confidential-containers/podvm-builder-${{ matrix.os }}:${{ github.sha }}
+          uk.icr.io/jt-cloud-api-adaptor/podvm-builder-${{ matrix.os }}:latest
+          uk.icr.io/jt-cloud-api-adaptor/podvm-builder-${{ matrix.os }}:${{ github.sha }}
         push: true
         context: podvm
         platforms: linux/amd64
