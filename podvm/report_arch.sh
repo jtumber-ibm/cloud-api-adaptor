@@ -1,1 +1,1 @@
-echo $ARCH
+echo "$ARCH"

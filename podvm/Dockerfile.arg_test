@@ -10,4 +10,5 @@ RUN ./report_arch.sh
 RUN ./report_arch.sh
 
 COPY test/Makefile Makefile
-RUN make arg
+COPY Makefile.inc Makefile.inc
+RUN IMAGE_NAME=test make arg
