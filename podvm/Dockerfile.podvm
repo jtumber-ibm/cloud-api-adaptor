@@ -21,6 +21,7 @@ RUN ./cross-build-extras.sh
 ENV CLOUD_PROVIDER ${CLOUD_PROVIDER}
 ENV PODVM_DISTRO ${PODVM_DISTRO}
 ENV AA_KBC ${AA_KBC}
+ENV ARCH ${ARCH}
 
 # Default to Ubuntu Focal amd64 release image. These variables can be overriden as needed
 ARG UBUNTU_IMAGE_URL=https://cloud-images.ubuntu.com/releases/focal/release-20230107/ubuntu-20.04-server-cloudimg-amd64.img
