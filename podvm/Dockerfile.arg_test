@@ -1,4 +1,5 @@
 FROM alpine:latest
+RUN apk add --update make
 
 ARG ARCH
 ENV ARCH ${ARCH}
@@ -8,6 +9,5 @@ RUN ./report_arch.sh
 
 RUN ./report_arch.sh
 
-ENV ARCH ${ARCH}
-
-RUN ./report_arch.sh
+COPY test/Makefile Makefile
+RUN make arg
