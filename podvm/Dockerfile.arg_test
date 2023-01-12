@@ -1,0 +1,13 @@
+FROM alpine:latest
+
+ARG ARCH
+ENV ARCH ${ARCH}
+
+COPY report_arch.sh report_arch.sh
+RUN ./report_arch.sh
+
+RUN ./report_arch.sh
+
+ENV ARCH ${ARCH}
+
+RUN ./report_arch.sh
