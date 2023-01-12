@@ -6,10 +6,11 @@ include Makefile.inc
 
 .PHONY: image clean
 
-UBUNTU_IMAGE_URL  ?= https://cloud-images.ubuntu.com/$(UBUNTU_RELEASE)/current/$(UBUNTU_RELEASE)-server-cloudimg-$(DEB_ARCH).img
-UBUNTU_IMAGE_CHECKSUM ?= $(shell curl -LO  https://cloud-images.ubuntu.com/"$(UBUNTU_RELEASE)"/current/SHA256SUMS && \
+# Check for set but empty or unset URL and CHECKSUM
+UBUNTU_IMAGE_URL := $(or $(UBUNTU_IMAGE_URL),https://cloud-images.ubuntu.com/$(UBUNTU_RELEASE)/current/$(UBUNTU_RELEASE)-server-cloudimg-$(DEB_ARCH).img)
+UBUNTU_IMAGE_CHECKSUM := $(or $(UBUNTU_IMAGE_CHECKSUM),$(shell curl -LO  https://cloud-images.ubuntu.com/"$(UBUNTU_RELEASE)"/current/SHA256SUMS && \
 				grep "$(UBUNTU_RELEASE)"-server-cloudimg-"$(DEB_ARCH)".img SHA256SUMS | awk '{print $$1}' && \
-				rm -f SHA256SUMS)
+				rm -f SHA256SUMS))
 
 IMAGE_SUFFIX := .qcow2
 PODVM_DISTRO ?= ubuntu
