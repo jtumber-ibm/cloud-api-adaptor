@@ -1,4 +1,4 @@
-name: Test Build ARG
+name: Sub File
 on:
   workflow_run:
     workflows: ["Test Build ARG"]
