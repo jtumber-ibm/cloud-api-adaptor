@@ -15,20 +15,14 @@ jobs:
       matrix:
         os:
           # Please keep this list in alphabetical order.
-          - centos
           - ubuntu
         provider:
           # Please keep this list in alphabetical order.
-          - aws
-          - azure
           - ibmcloud
           - libvirt
-          - vsphere
         arch:
           - amd64
         include:
-          - os: centos
-            dockerfile: Dockerfile.podvm.centos
           - os: ubuntu
             dockerfile: Dockerfile.podvm
           - arch: s390x
@@ -51,16 +45,16 @@ jobs:
     - name: Login to Quay container Registry
       uses: docker/login-action@v2
       with:
-        registry: quay.io
-        username: ${{ secrets.QUAY_USERNAME }}
-        password: ${{ secrets.QUAY_PASSWORD }}
+        registry: uk.icr.io
+        username: ${{ secrets.IBM_IAM_USERNAME }}
+        password: ${{ secrets.IBM_IAM_PASSWORD }}
 
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
         tags: |
-          quay.io/confidential-containers/podvm-${{ matrix.provider }}-${{ matrix.os }}-${{ matrix.arch }}:latest
-          quay.io/confidential-containers/podvm-${{ matrix.provider }}-${{ matrix.os }}-${{ matrix.arch }}:${{ github.sha }}
+          uk.icr.io/jt-cloud-api-adaptor/podvm-${{ matrix.provider }}-${{ matrix.os }}-${{ matrix.arch }}:latest
+          uk.icr.io/jt-cloud-api-adaptor/podvm-${{ matrix.provider }}-${{ matrix.os }}-${{ matrix.arch }}:${{ github.sha }}
         push: true
         context: podvm
         platforms: linux/amd64
@@ -69,6 +63,7 @@ jobs:
         build-args: |
           "CLOUD_PROVIDER=${{ matrix.provider }}"
           "ARCH=${{ matrix.arch }}"
+          "BUILDER_IMG=uk.icr.io/jt-cloud-api-adaptor/podvm-builder-${{ matrix.os }}"
           "UBUNTU_IMAGE_URL="
           "UBUNTU_IMAGE_CHECKSUM="
 
