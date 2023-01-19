@@ -22,6 +22,11 @@ jobs:
           - ibmcloud
           - libvirt
           - vsphere
+        arches:
+          - linux/amd64
+        include:
+          - provider: ibmcloud
+            arches: linux/amd64,linux/s390x
         runner:
           - ubuntu-latest
         go_version:
@@ -48,4 +53,4 @@ jobs:
           password: ${{ secrets.QUAY_PASSWORD }}
       - name: Build and push image
         run: |
-          make CLOUD_PROVIDER=${{ matrix.provider }} image
+          ARCHES=${{matrix.arches}} make CLOUD_PROVIDER=${{ matrix.provider }} image
