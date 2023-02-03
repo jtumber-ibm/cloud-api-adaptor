@@ -1,0 +1,13 @@
+---
+- name: "Install required packages on Ubuntu"
+  apt:
+    update_cache: true
+    name: "{{ item }}"
+    state: latest
+  with_items:
+      - unzip
+      - tar
+      - apt-transport-https
+      - libbtrfs-dev
+      - libseccomp2
+      - util-linux
