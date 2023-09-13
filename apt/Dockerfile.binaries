@@ -1,0 +1,5 @@
+FROM scratch
+
+COPY <<EOF podvm-binaries.tar.gz
+empty
+EOF
