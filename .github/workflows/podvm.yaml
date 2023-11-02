@@ -4,6 +4,7 @@ on:
     workflows: ["Create Pod VM Binaries Image"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   build:
